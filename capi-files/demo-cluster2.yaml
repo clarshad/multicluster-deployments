@@ -3,8 +3,8 @@ kind: Cluster
 metadata:
   labels:
     ccm: external
-    csi: external
-  name: arsh5-cluster
+    cni: external
+  name: demo-cluster2
   namespace: default
 spec:
   clusterNetwork:
@@ -14,16 +14,16 @@ spec:
   controlPlaneRef:
     apiVersion: controlplane.cluster.x-k8s.io/v1beta1
     kind: KubeadmControlPlane
-    name: arsh5-cluster-control-plane
+    name: demo-cluster2-control-plane
   infrastructureRef:
     apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
     kind: AWSCluster
-    name: arsh5-cluster
+    name: demo-cluster2
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 kind: AWSCluster
 metadata:
-  name: arsh5-cluster
+  name: demo-cluster2
   namespace: default
 spec:
   controlPlaneLoadBalancer:
@@ -48,7 +48,7 @@ spec:
 apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 kind: KubeadmControlPlane
 metadata:
-  name: arsh5-cluster-control-plane
+  name: demo-cluster2-control-plane
   namespace: default
 spec:
   kubeadmConfigSpec:
@@ -73,14 +73,14 @@ spec:
     infrastructureRef:
       apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
       kind: AWSMachineTemplate
-      name: arsh5-cluster-control-plane
+      name: demo-cluster2-control-plane
   replicas: 1
   version: v1.31.0
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 kind: AWSMachineTemplate
 metadata:
-  name: arsh5-cluster-control-plane
+  name: demo-cluster2-control-plane
   namespace: default
 spec:
   template:
@@ -95,35 +95,35 @@ spec:
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: MachineDeployment
 metadata:
-  name: arsh5-cluster-md-0
+  name: demo-cluster2-md-0
   namespace: default
 spec:
-  clusterName: arsh5-cluster
+  clusterName: demo-cluster2
   replicas: 1
   selector:
     matchLabels:
-      machineDeployment: arsh5-cluster-md-0
+      machineDeployment: demo-cluster2-md-0
   template:
     metadata:
       labels:
-        machineDeployment: arsh5-cluster-md-0
+        machineDeployment: demo-cluster2-md-0
     spec:
       bootstrap:
         configRef:
           apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
           kind: KubeadmConfigTemplate
-          name: arsh5-cluster-md-0
-      clusterName: arsh5-cluster
+          name: demo-cluster2-md-0
+      clusterName: demo-cluster2
       infrastructureRef:
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
         kind: AWSMachineTemplate
-        name: arsh5-cluster-md-0
+        name: demo-cluster2-md-0
       version: v1.31.0
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 kind: AWSMachineTemplate
 metadata:
-  name: arsh5-cluster-md-0
+  name: demo-cluster2-md-0
   namespace: default
 spec:
   template:
@@ -138,7 +138,7 @@ spec:
 apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate
 metadata:
-  name: arsh5-cluster-md-0
+  name: demo-cluster2-md-0
   namespace: default
 spec:
   template:
@@ -166,15 +166,15 @@ spec:
 apiVersion: addons.cluster.x-k8s.io/v1beta1
 kind: ClusterResourceSet
 metadata:
-  name: crs-csi
+  name: crs-cni
   namespace: default
 spec:
   clusterSelector:
     matchLabels:
-      csi: external
+      cni: external
   resources:
   - kind: ConfigMap
-    name: aws-ebs-csi-driver-addon
+    name: calico-cni-addon
   strategy: ApplyOnce
 ---
 apiVersion: v1
@@ -5484,5 +5484,5 @@ metadata:
     note: generated
   labels:
     type: generated
-  name: aws-ebs-csi-driver-addon
+  name: calico-cni-addon
   namespace: default
