@@ -10,7 +10,10 @@ spec:
   clusterNetwork:
     pods:
       cidrBlocks:
-      - 192.168.0.0/16
+      - 192.168.20.0/24
+    services:
+      cidrBlocks: 
+      - 10.96.20.0/24
   controlPlaneRef:
     apiVersion: controlplane.cluster.x-k8s.io/v1beta1
     kind: KubeadmControlPlane
@@ -5300,7 +5303,7 @@ data:
                 # chosen from this range. Changing this value after installation will have
                 # no effect. This should fall within `--cluster-cidr`.
                 # - name: CALICO_IPV4POOL_CIDR
-                #   value: "192.168.0.0/16"
+                #   value: "192.168.20.0/24"
                 # Disable file logging so `kubectl logs` works.
                 - name: CALICO_DISABLE_FILE_LOGGING
                   value: "true"
@@ -5312,6 +5315,8 @@ data:
                   value: "false"
                 - name: FELIX_HEALTHENABLED
                   value: "true"
+                - name: IP_AUTODETECTION_METHOD
+                  value: "skip-interface=liqo.*"
               securityContext:
                 privileged: true
               resources:

@@ -7,18 +7,39 @@
     - helm
     - liqoctl
 - kubeconfig of clusters to be peered
+- Clusters to be peered in running state with calico installed
 
 #### Steps
 
-1. To install chart on your cluster
+1. Before installing the helm chart, update `apiServer.address` `clusterID` `podCIDR` `serviceCIDR` and `reservedSubnets`
+
+2. Add below annotation for gateway service (this is specifically for AWS)
+```
+service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+```
+3. Install helm chart as below
+```
+helm install liqo liqo/liqo --namespace liqo --create-namespace 
+```
+Note: podCIdR and serviceCIDR should not overlap with peered clusters, hence update them while running on each cluster accordingly
+
+4. Run below command to create peering
 
 ```
-helm install liqo liqo --namespace liqo --create-namespace 
+liqoctl peer --kubeconfig demo-cluster1-kubeconfig --remote-kubeconfig demo-cluster2-kubeconfig
 ```
-Note: Update `podCIDR` and `serviceCIDR` accordingly
+ 
+5. To offload resources in cluster1 to cluster2, run below command
 
-2. Liqo peering
+```
+liqoctl offload namespace liqo-demo \
+  --namespace-mapping-strategy EnforceSameName \
+  --pod-offloading-strategy LocalAndRemote
+```
+6. Verify that pods are offloaded to cluster2
 
 ```
-liqoctl peer --kubeconfig demo-cluster1-kubeconfig --remote-kubeconfig demo-cluster2-kubeconfig --in-band
+kubectl run --image nginx nginx -n liqo-demo
+kubectl get pods -n liqo-demo -o wide
 ```
+Verify pod is scheduled on cluster2 and running on virtual node
