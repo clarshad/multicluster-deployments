@@ -1,0 +1,34 @@
+# propagationpolicy.yaml
+apiVersion: policy.karmada.io/v1alpha1
+kind: PropagationPolicy
+metadata:
+  name: sample-single-nginx-policy # The default namespace is `default`.
+spec:
+  resourceSelectors:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: singlenginx # If no namespace is specified, the namespace is inherited from the parent object scope.
+  placement:
+    clusterAffinity:
+      clusterNames:
+        - demo-cluster1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: singlenginx
+  labels:
+    app: singlenginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: singlenginx
+  template:
+    metadata:
+      labels:
+        app: singlenginx
+    spec:
+      containers:
+      - image: nginx
+        name: singlenginx

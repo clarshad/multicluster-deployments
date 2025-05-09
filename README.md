@@ -5,9 +5,15 @@ This is a collection of yaml files to create a simple Kubernetes cluster with CA
 
 ## Setup Management Cluster
 
-1. Bring up a single EC2 instance with alteast 2 CPU core and 8GB RAM. Preferrable with Ubuntu OS.
+1. Bring up a single EC2 instance with alteast 2 CPU core and 8GB RAM. Preferrable with Ubuntu OS. Make sure below ports are open for inbound traffic.
 
-2. Install [k3s](https://rancher.com/docs/k3s/latest/en/installation/) by running below command.
+    - 80
+    - 443
+    - 22
+    - 6443
+    - 32443
+
+2. Install [k3s](https://rancher.com/docs/k3s/latest/en/installation/) by running below command on the EC2 instance.
 
 ```
 curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--tls-san k3s.example.com --tls-san 192.168.1.10" sh -
@@ -54,5 +60,33 @@ export AWS_B64ENCODED_CREDENTIALS=$(clusterawsadm bootstrap credentials encode-a
 
 # Finally, initialize the management cluster
 clusterctl init --infrastructure aws
+```
 
+7. To install Karmada, install Karmadactl binary in your local machine.
 
+```
+curl -s https://raw.githubusercontent.com/karmada-io/karmada/master/hack/install-cli.sh | sudo bash
+```
+
+8. Run below command to install Karmada on your management cluster.
+
+```
+sudo karmadactl init --kubeconfig /path/to/k3/mgmt/cluster/kubeconfig/file --karmada-apiserver-advertise-address=public-ip-of-mgmt-cluster
+```
+
+## Setup Multi Cluster Environment via Karmada
+
+1. With Karmada installed on management cluster, run below command to add member clusters.
+
+```
+sudo karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config join demo-cluster1 --cluster-kubeconfig=demo-cluster1-kubeconfig
+sudo karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config join demo-cluster2 --cluster-kubeconfig=demo-cluster2-kubeconfig
+```
+
+2. Test propagation policy by running below command.
+
+```
+sudo karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config apply -f karmada-sample-files/sample-propagationpolicy.yaml
+sudo karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config apply -f karmada-sample-files/sample2-propagationpolicy.yaml
+```
+3. Connect individually on member clusters and verify pods running.
