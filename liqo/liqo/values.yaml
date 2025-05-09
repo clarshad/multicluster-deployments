@@ -20,7 +20,7 @@ metrics:
 
 apiServer:
   # -- The address that must be used to contact your API server, it needs to be reachable from the clusters that you will peer with (defaults to your master IP).
-  address: "https://default-demo-cluster1-apiserver-9ef3e28fa8853e02.elb.us-east-1.amazonaws.com:6443"
+  address: "https://default-demo-cluster2-apiserver-e387a9e3d54b47e7.elb.us-east-1.amazonaws.com:6443"
   # -- The CA certificate used to issue x509 user certificates for the API server (base64). Leave it empty to use the default CA.
   ca: ""
   # -- Indicates that the API Server is exposing a certificate issued by a trusted Certification Authority.
@@ -453,9 +453,9 @@ ipam:
     ## -- Set the grace period the sync routine will wait before deleting an ip or a network.
     syncGracePeriod: 30s
   # -- The subnet used by the pods in your cluster, in CIDR notation (e.g., 10.0.0.0/16).
-  podCIDR: 192.168.10.0/24
+  podCIDR: 192.168.20.0/24
   # -- The subnet used by the services in you cluster, in CIDR notation (e.g., 172.16.0.0/16).
-  serviceCIDR: 10.96.10.0/24
+  serviceCIDR: 10.96.20.0/24
   # -- The subnet used for the external CIDR.
   externalCIDR: "10.70.0.0/16"
   # -- The subnet used for the internal CIDR.
@@ -517,7 +517,7 @@ crdReplicator:
 discovery:
   config:
     # -- Specify an unique ID for your cluster. This ID is used to identify your cluster in the peering process.
-    clusterID: "demo-cluster1"
+    clusterID: "demo-cluster2"
     # -- A set of labels that characterizes the local cluster when exposed remotely as a virtual node.
     # It is suggested to specify the distinguishing characteristics that may be used to decide whether to offload pods on this cluster.
     clusterLabels: {}

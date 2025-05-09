@@ -32,6 +32,7 @@ liqoctl peer --kubeconfig demo-cluster1-kubeconfig --remote-kubeconfig demo-clus
 5. To offload resources in cluster1 to cluster2, run below command
 
 ```
+kubectl create ns liqo-demo
 liqoctl offload namespace liqo-demo \
   --namespace-mapping-strategy EnforceSameName \
   --pod-offloading-strategy LocalAndRemote
@@ -39,6 +40,7 @@ liqoctl offload namespace liqo-demo \
 6. Verify that pods are offloaded to cluster2
 
 ```
+liqoctl info
 kubectl run --image nginx nginx -n liqo-demo
 kubectl get pods -n liqo-demo -o wide
 ```
