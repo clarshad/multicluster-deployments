@@ -19,9 +19,14 @@ service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
 ```
 3. Install helm chart as below
 ```
-helm install liqo liqo/liqo --namespace liqo --create-namespace 
+helm install liqo liqo/liqo --namespace liqo --create-namespace \
+  --set discovery.config.clusterID="demo-cluster2" \
+  --set apiServer.address="https://default-demo-cluster2-apiserver-8adc2062359be9e3.elb.us-east-1.amazonaws.com:6443" \
+  --set ipam.podCIDR="192.168.20.0/24" \
+  --set ipam.serviceCIDR="10.96.20.0/24"
+  
 ```
-Note: podCIdR and serviceCIDR should not overlap with peered clusters, hence update them while running on each cluster accordingly
+Note: podCIDR and serviceCIDR should not overlap with peered clusters, hence update them while running on each cluster accordingly
 
 4. Run below command to create peering
 

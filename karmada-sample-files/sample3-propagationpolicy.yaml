@@ -1,7 +1,7 @@
 apiVersion: policy.karmada.io/v1alpha1
 kind: PropagationPolicy
 metadata:
-  name: nginx-failover-propagation
+  name: nginx-propagation-failover
 spec:
   resourceSelectors:
     - apiVersion: apps/v1
@@ -17,14 +17,21 @@ spec:
       replicaDivisionPreference: Weighted
       weightPreference:
         staticWeightList:
-          - targetCluster:
-              clusterNames:
-                - demo-cluster1
-            weight: 1
-          - targetCluster:
-              clusterNames:
-                - demo-cluster2
-            weight: 2
+        - targetCluster:
+            clusterNames:
+              - demo-cluster1
+          weight: 1
+        - targetCluster:
+            clusterNames:
+              - demo-cluster2
+          weight: 1
+  failover:
+    application:
+      decisionConditions:
+        tolerationSeconds: 60
+      purgeMode: Graciously
+      gracePeriodSeconds: 60
+  propagateDeps: true
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -33,7 +40,7 @@ metadata:
   labels:
     app: testnginxfailover
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       app: testnginxfailover
