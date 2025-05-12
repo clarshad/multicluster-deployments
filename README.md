@@ -66,6 +66,7 @@ clusterctl init --infrastructure aws
 ```
 kubectl apply -f capi-sample-files/resource-set.yaml
 ```
+Note: For installing cluster in AWS via CAPA CAPI, make sure you have VPC and ssh key pair created. Also verify the ami ID before setting it in the CAPI related custom resource.
 
 8. To install Karmada, install Karmadactl binary in your local machine.
 
@@ -78,6 +79,8 @@ curl -s https://raw.githubusercontent.com/karmada-io/karmada/master/hack/install
 ```
 sudo karmadactl init --kubeconfig /path/to/k3/mgmt/cluster/kubeconfig/file --karmada-apiserver-advertise-address=public-ip-of-mgmt-cluster
 ```
+
+10. Update command line option in `karmada-controller-manager` in `karmada-system` namespace to include `--feature-gates=Failover=true` to enable failover feature. Refrence [docs](https://karmada.io/docs/userguide/failover/failover-overview#how-do-i-enable-the-feature).
 
 ## Setup Liqo Peering on Prod Clusters
 

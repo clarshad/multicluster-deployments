@@ -1,0 +1,153 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  labels:
+    ccm: external
+    cni: external
+  name: demo-cluster3
+  namespace: default
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      - 192.168.20.0/24
+    services:
+      cidrBlocks: 
+      - 10.96.20.0/24
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    kind: KubeadmControlPlane
+    name: demo-cluster3-control-plane
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+    kind: AWSCluster
+    name: demo-cluster3
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+kind: AWSCluster
+metadata:
+  name: demo-cluster3
+  namespace: default
+spec:
+  controlPlaneLoadBalancer:
+    healthCheckProtocol: HTTPS
+    loadBalancerType: nlb
+  region: eu-west-1
+  sshKeyName: capi-keypair
+  network:
+    vpc:
+      id: vpc-044b611d975ba3cbb
+    subnets:
+      - id: subnet-0e1fc4e490b407315
+        isPublic: true
+    additionalControlPlaneIngressRules:
+      - fromPort: 22
+        toPort: 22
+        protocol: tcp
+        description: "Allow SSH"
+        cidrBlocks:
+          - 0.0.0.0/0
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: KubeadmControlPlane
+metadata:
+  name: demo-cluster3-control-plane
+  namespace: default
+spec:
+  kubeadmConfigSpec:
+    clusterConfiguration:
+      apiServer:
+        extraArgs:
+          cloud-provider: external
+      controllerManager:
+        extraArgs:
+          cloud-provider: external
+    initConfiguration:
+      nodeRegistration:
+        kubeletExtraArgs:
+          cloud-provider: external
+        name: '{{ ds.meta_data.local_hostname }}'
+    joinConfiguration:
+      nodeRegistration:
+        kubeletExtraArgs:
+          cloud-provider: external
+        name: '{{ ds.meta_data.local_hostname }}'
+  machineTemplate:
+    infrastructureRef:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+      kind: AWSMachineTemplate
+      name: demo-cluster3-control-plane
+  replicas: 1
+  version: v1.31.0
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+kind: AWSMachineTemplate
+metadata:
+  name: demo-cluster3-control-plane
+  namespace: default
+spec:
+  template:
+    spec:
+      iamInstanceProfile: control-plane.cluster-api-provider-aws.sigs.k8s.io
+      instanceType: t3.medium
+      sshKeyName: capi-keypair
+      publicIP: true
+      ami:
+        id: ami-0790c4073b5bd571f 
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachineDeployment
+metadata:
+  name: demo-cluster3-md-0
+  namespace: default
+spec:
+  clusterName: demo-cluster3
+  replicas: 1
+  selector:
+    matchLabels:
+      machineDeployment: demo-cluster3-md-0
+  template:
+    metadata:
+      labels:
+        machineDeployment: demo-cluster3-md-0
+    spec:
+      bootstrap:
+        configRef:
+          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+          kind: KubeadmConfigTemplate
+          name: demo-cluster3-md-0
+      clusterName: demo-cluster3
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+        kind: AWSMachineTemplate
+        name: demo-cluster3-md-0
+      version: v1.31.0
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+kind: AWSMachineTemplate
+metadata:
+  name: demo-cluster3-md-0
+  namespace: default
+spec:
+  template:
+    spec:
+      iamInstanceProfile: nodes.cluster-api-provider-aws.sigs.k8s.io
+      instanceType: t3.medium
+      sshKeyName: capi-keypair
+      publicIP: true
+      ami:
+        id: ami-0790c4073b5bd571f
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+kind: KubeadmConfigTemplate
+metadata:
+  name: demo-cluster3-md-0
+  namespace: default
+spec:
+  template:
+    spec:
+      joinConfiguration:
+        nodeRegistration:
+          kubeletExtraArgs:
+            cloud-provider: external
+          name: '{{ ds.meta_data.local_hostname }}'
