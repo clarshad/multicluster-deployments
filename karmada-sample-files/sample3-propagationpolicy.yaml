@@ -11,7 +11,7 @@ spec:
     clusterAffinity:
       clusterNames:
         - demo-cluster1
-        - demo-cluster2
+        - demo-cluster3
     replicaScheduling:
       replicaSchedulingType: Divided
       replicaDivisionPreference: Weighted
@@ -23,7 +23,7 @@ spec:
           weight: 1
         - targetCluster:
             clusterNames:
-              - demo-cluster2
+              - demo-cluster3
           weight: 1
   failover:
     application:

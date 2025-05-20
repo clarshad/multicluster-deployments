@@ -1,0 +1,28 @@
+k8gb:
+  dnsZone: "cloudflare-test.namutech.dev"
+  # -- main zone which would contain gslb zone to delegate
+  edgeDNSZone: "namutech.dev" # main zone which would contain gslb zone to delegate
+  # -- used for places where we need tcat o distinguish between different Gslb instances
+  clusterGeoTag: "us-east-1"
+  # -- comma-separated list of external gslb geo tags to pair with
+  extGslbClustersGeoTags: "eu-west-1"
+
+cloudflare:
+  # -- Enable Cloudflare provider
+  enabled: true
+  # -- Cloudflare Zone ID
+  zoneID: f19860b69cf8c2d01de61fe734d1f58c
+  # -- Configure how many DNS records to fetch per request
+  # see https://github.com/kubernetes-sigs/external-dns/blob/master/docs/tutorials/cloudflare.md#throttling
+  dnsRecordsPerPage: 5000
+
+externaldns:
+  extraEnv:
+  - name: CF_API_TOKEN
+    value: CsZsTKOJTj3Ls7VZ4V2t-ZLhc9hZdpVPWCi5NsEX
+
+coredns:
+  serviceType: LoadBalancer
+  service:
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-type: nlb

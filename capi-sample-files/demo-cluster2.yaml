@@ -35,6 +35,9 @@ spec:
   region: us-east-1
   sshKeyName: capi-keypair
   network:
+    securityGroupOverrides:
+      controlplane: sg-095c8fb03a5d43a11
+      node: sg-095c8fb03a5d43a11  
     vpc:
       id: vpc-0ea8b3352e5656c33
     subnets:
@@ -46,7 +49,7 @@ spec:
         protocol: tcp
         description: "Allow SSH"
         cidrBlocks:
-          - 0.0.0.0/0
+          - 0.0.0.0/0     
 ---
 apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 kind: KubeadmControlPlane

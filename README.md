@@ -90,8 +90,8 @@ sudo karmadactl init --kubeconfig /path/to/k3/mgmt/cluster/kubeconfig/file --kar
 
 ```
 helm install liqo liqo/liqo --namespace liqo --create-namespace \
-  --set discovery.config.clusterID="demo-cluster2" \
-  --set apiServer.address="https://default-demo-cluster2-apiserver-8adc2062359be9e3.elb.us-east-1.amazonaws.com:6443" \
+  --set discovery.config.clusterID="demo-cluster3" \
+  --set apiServer.address="https://default-demo-cluster3-apiserver-e53a72881fd6da80.elb.eu-west-1.amazonaws.com:6443" \
   --set ipam.podCIDR="192.168.20.0/24" \
   --set ipam.serviceCIDR="10.96.20.0/24"
   
@@ -145,3 +145,27 @@ sudo karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config apply -f karm
 sudo karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config unjoin demo-cluster1
 sudo karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config unjoin demo-cluster2
 ```
+
+## Setup ArgoCD on Management Cluster
+
+1. Run below command to install ArgoCD on management cluster. This for application deployment across member clusters added via Karmada.
+
+```
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
+```
+
+2. Download argocd CLI binary from argocd [site](https://argo-cd.readthedocs.io/en/stable/getting_started/#2-download-argo-cd-cli)
+
+3. Connect argocd CLI to argocd server and register Karmada control plane.
+
+``` 
+argocd admin initial-password -n argocd
+argocd login 54.235.71.18:31564
+sudo kubectl config --kubeconfig /etc/karmada/karmada-apiserver.config  get-contexts -o name
+sudo argocd --kubeconfig /etc/karmada/karmada-apiserver.config cluster add karmada-apiserver
+```
+Note: For argocd login use management IP along with port number of argocd server port, by listing `kubectl get svc -n argocd argocd-server`
+Also make sure the port number assigned by Kubernetes is open on EC2 instance (K3s management cluster) security group.
+

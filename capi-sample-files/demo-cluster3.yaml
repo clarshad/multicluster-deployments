@@ -35,6 +35,9 @@ spec:
   region: eu-west-1
   sshKeyName: capi-keypair
   network:
+    securityGroupOverrides:
+      controlplane: sg-0ee985293afa8a97d
+      node: sg-0ee985293afa8a97d
     vpc:
       id: vpc-044b611d975ba3cbb
     subnets:
@@ -45,6 +48,18 @@ spec:
         toPort: 22
         protocol: tcp
         description: "Allow SSH"
+        cidrBlocks:
+          - 0.0.0.0/0
+      - fromPort: 53
+        toPort: 53
+        protocol: tcp
+        description: "Allow DNS TCP"
+        cidrBlocks:
+          - 0.0.0.0/0
+      - fromPort: 53
+        toPort: 53
+        protocol: udp
+        description: "Allow DNS UDP"
         cidrBlocks:
           - 0.0.0.0/0
 ---
