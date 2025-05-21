@@ -192,3 +192,21 @@ sudo argocd --kubeconfig /etc/karmada/karmada-apiserver.config cluster add karma
 Note: For argocd login use management IP along with port number of argocd server port, by listing `kubectl get svc -n argocd argocd-server`
 Also make sure the port number assigned by Kubernetes is open on EC2 instance (K3s management cluster) security group.
 
+4. Verification - Deploy a sample app via argocd UI and verify it is deployed on member clusters.
+
+  (a) Connect to argocd UI via browser on https://54.235.71.18:31564 and login with admin user and password from step 3.
+
+  (b) Create a new application and select Karmada control plane API as Destination cluster URL. Reference [official docs](https://karmada.io/docs/userguide/cicd/working-with-argocd/#creating-apps-via-ui).
+
+  (c) Set below values while creating the application, while keeping other values same as default.
+
+```
+REPO URL: https://github.com/clarshad/multicluster-deployments.git
+PATH: argocd-sample-files/guestbook-example-app
+TARGET REVISION: main
+Project: default
+Destination Cluster URL: karmada-apiserver (https://54.235.71.18:32443)
+```
+
+  (d) Once sync completed, verify app is deployed on member clusters. 
+
