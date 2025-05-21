@@ -11,6 +11,8 @@ This is a collection of yaml files for Kubernetes mutli-cluster provisioning and
     - 22 (SSH)
     - 6443 (Kubernetes API server port)
     - 32443 (Karmada node port)
+    - 31564 (argocd node port for http) 
+    - 30504 (argocd node port for https)
 
 2. Install [k3s](https://rancher.com/docs/k3s/latest/en/installation/) by running below command on the EC2 instance.
 
@@ -154,6 +156,27 @@ sudo karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config unjoin demo-c
 kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
+kubectl patch service argocd-server -n argocd \
+  -p '{
+    "spec": {
+      "ports": [
+        {
+          "name": "http",
+          "port": 80,
+          "protocol": "TCP",
+          "targetPort": 8080,
+          "nodePort": 31564
+        },
+        {
+          "name": "https",
+          "port": 443,
+          "protocol": "TCP",
+          "targetPort": 8080,
+          "nodePort": 30504
+        }
+      ]
+    }
+  }'
 ```
 
 2. Download argocd CLI binary from argocd [site](https://argo-cd.readthedocs.io/en/stable/getting_started/#2-download-argo-cd-cli)
